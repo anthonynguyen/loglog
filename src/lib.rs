@@ -5,6 +5,8 @@ extern crate env_logger;
 extern crate isatty;
 extern crate log;
 
+use std::env;
+
 use ansi_term::Colour;
 
 mod errors;
@@ -56,9 +58,12 @@ impl LogLog {
             self.show_colour = false;
         }
 
+        let rust_log = env::var("RUST_LOG")
+            .unwrap_or_else(|_| "info".to_string());
+
         env_logger::LogBuilder::new()
             .format(move |record| self.formatter(record))
-            .filter(None, log::LogLevelFilter::Trace)
+            .parse(&rust_log)
             .init()?;
 
         Ok(())
@@ -115,7 +120,9 @@ impl LogLog {
     fn format_target(&self, target: &str) -> String {
         match self.show_target {
             true => match self.show_colour {
-                true => Colour::Purple.paint(format!(" ({})", target)).to_string(),
+                true => Colour::Purple
+                    .paint(format!(" ({})", target))
+                    .to_string(),
                 false => format!(" ({})", target)
             },
             false => "".to_string(),
