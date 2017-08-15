@@ -106,27 +106,30 @@ impl LogLog {
     }
 
     fn format_time(&self) -> String {
-        let ts = chrono::Local::now().format(&self.time_format).to_string();
+        if self.show_time {
+            let ts = chrono::Local::now().format(&self.time_format).to_string();
 
-        match self.show_time {
-            true => match self.show_colour {
-                true => Colour::Purple.bold().paint(ts).to_string(),
-                false => ts
-            },
-            false => "".to_string()
+            if self.show_colour {
+                Colour::Purple.bold().paint(ts).to_string()
+            } else {
+                ts
+            }
+        } else {
+            "".to_string()
         }
     }
 
-    fn format_level<'a>(&'a self, level: log::LogLevel) -> &'a str {
-        match self.show_colour {
-            true => match level {
+    fn format_level(&self, level: log::LogLevel) -> &str {
+        if self.show_colour {
+            match level {
                 log::LogLevel::Trace => &self.colour_trace,
                 log::LogLevel::Debug => &self.colour_debug,
                 log::LogLevel::Info => &self.colour_info,
                 log::LogLevel::Warn => &self.colour_warn,
                 log::LogLevel::Error => &self.colour_error
-            },
-            false => match level {
+            }
+        } else {
+            match level {
                 log::LogLevel::Trace => BARE_TRACE,
                 log::LogLevel::Debug => BARE_DEBUG,
                 log::LogLevel::Info => BARE_INFO,
@@ -137,14 +140,16 @@ impl LogLog {
     }
 
     fn format_target(&self, target: &str) -> String {
-        let ts = format!(" ({})", target);
+        if self.show_target {
+            let ts = format!(" ({})", target);
 
-        match self.show_target {
-            true => match self.show_colour {
-                true => Colour::Purple.bold().paint(ts).to_string(),
-                false => ts
-            },
-            false => "".to_string(),
+            if self.show_colour {
+                Colour::Purple.bold().paint(ts).to_string()
+            } else {
+                ts
+            }
+        } else {
+            "".to_string()
         }
     }
 
