@@ -2,6 +2,13 @@
 name = "loglog"
 version = "0.1.0"
 authors = ["Anthony Nguyen <anknguyen@gmail.com>"]
+description = "A very simple logger"
+homepage = "https://github.com/anthonynguyen/loglog"
+repository = "https://github.com/anthonynguyen/loglog"
+readme = "README.md"
+keywords = ["log", "logger", "logging"]
+categories = ["development-tools::debugging"]
+license = "MIT"
 
 [dependencies]
 env_logger = "0.4.3"
