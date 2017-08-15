@@ -1,3 +1,37 @@
+//! # `loglog`
+//!
+//! loglog aims to be a simple and ergonomic logger that you can drop straight
+//! into your code. It uses `env_logger` behind the scenes, so you can use your
+//! familiar `log` crate macros.
+//!
+//! ## Usage
+//!
+//! Add `loglog` to your `Cargo.toml`:
+//!
+//! ```toml
+//! [dependencies]
+//! loglog = "0.2"
+//! ```
+//!
+//! After initializing the logger, the `log` crate macros will be available.
+//!
+//! ## Example
+//!
+//! ```rust
+//! #[macro_use] extern crate log;
+//! extern crate loglog;
+//!
+//! fn main() {
+//!     loglog::build()
+//!         .time(Some("%H:%M"))
+//!         .init()
+//!         .unwrap();
+//!
+//!     info!("This is an informational {}", "message");
+//!     error!("This is not good!");
+//! }
+//! ```
+
 extern crate ansi_term;
 extern crate chrono;
 extern crate env_logger;
@@ -18,7 +52,8 @@ const BARE_INFO: &'static str = "[INFO ]";
 const BARE_WARN: &'static str = "[WARN ]";
 const BARE_ERROR: &'static str = "[ERROR]";
 
-pub struct LogLog {
+/// The main logger builder.
+pub struct LogLogBuilder {
     time_format: String,
     show_time: bool,
 
@@ -32,16 +67,9 @@ pub struct LogLog {
     colour_error: String
 }
 
-pub fn init() -> Result<()> {
-    build().init()
-}
-
-pub fn init_with(selector: &str) -> Result<()> {
-    build().init_with(selector)
-}
-
-pub fn build() -> LogLog {
-    LogLog {
+/// Create the logger builder with some default values.
+pub fn build() -> LogLogBuilder {
+    LogLogBuilder {
         time_format: "%T ".to_string(),
         show_time: true,
 
@@ -56,7 +84,17 @@ pub fn build() -> LogLog {
     }
 }
 
-impl LogLog {
+/// Quickly create the builder and start the logger.
+pub fn init() -> Result<()> {
+    build().init()
+}
+
+/// Quickly create the builder and start the logger with a selector.
+pub fn init_with(selector: &str) -> Result<()> {
+    build().init_with(selector)
+}
+
+impl LogLogBuilder {
     fn init_(mut self, selector: Option<&str>) -> Result<()> {
         if !isatty::stderr_isatty() {
             self.show_colour = false;
@@ -75,14 +113,20 @@ impl LogLog {
         Ok(())
     }
 
+    /// Start the logger with the constructed settings.
     pub fn init(self) -> Result<()> {
         self.init_(None)
     }
 
+    /// Start the logger with the constructed settings and a selector.
     pub fn init_with(self, selector: &str) -> Result<()> {
         self.init_(Some(selector))
     }
 
+    /// Set the timestamp format to be used. If None is given, the timestamp is
+    /// disabled.
+    ///
+    /// By default, the timestamp is displayed, and the format is `%H:%M:%S`.
     pub fn time(mut self, time_format: Option<&str>) -> Self {
         match time_format {
             Some(format) => {
@@ -95,11 +139,19 @@ impl LogLog {
         self
     }
 
+    /// Enable or disable the output of the "log target". For example, for a
+    /// module `zmod` in a crate `zcrate`, this would be `zcrate::zmod`.
+    ///
+    /// By default, the displaying the target is *not* enabled.
     pub fn target(mut self, show: bool) -> Self {
         self.show_target = show;
         self
     }
 
+    /// Enable or disable coloured output. Note that colours are automatically
+    /// disabled if the terminal doesn't support them.
+    ///
+    /// By default, colours are enabled.
     pub fn colour(mut self, show: bool) -> Self {
         self.show_colour = show;
         self
