@@ -64,7 +64,9 @@ pub struct LogLogBuilder {
     colour_debug: String,
     colour_info: String,
     colour_warn: String,
-    colour_error: String
+    colour_error: String,
+
+    selector: Option<String>
 }
 
 /// Create the logger builder with some default values.
@@ -80,7 +82,9 @@ pub fn build() -> LogLogBuilder {
         colour_debug: Colour::Cyan.bold().paint(BARE_DEBUG).to_string(),
         colour_info: Colour::Green.bold().paint(BARE_INFO).to_string(),
         colour_warn: Colour::Yellow.bold().paint(BARE_WARN).to_string(),
-        colour_error: Colour::Red.bold().paint(BARE_ERROR).to_string()
+        colour_error: Colour::Red.bold().paint(BARE_ERROR).to_string(),
+
+        selector: None
     }
 }
 
@@ -89,19 +93,14 @@ pub fn init() -> Result<()> {
     build().init()
 }
 
-/// Quickly create the builder and start the logger with a selector.
-pub fn init_with(selector: &str) -> Result<()> {
-    build().init_with(selector)
-}
-
 impl LogLogBuilder {
-    fn init_(mut self, selector: Option<&str>) -> Result<()> {
+    /// Start the logger with the constructed settings.
+    pub fn init(mut self) -> Result<()> {
         if !isatty::stderr_isatty() {
             self.show_colour = false;
         }
 
-        let rust_log: String = selector
-            .map(|s| s.to_string())
+        let rust_log = self.selector.clone()
             .or_else(|| env::var("RUST_LOG").ok())
             .unwrap_or_else(|| "debug".to_string());
 
@@ -111,16 +110,6 @@ impl LogLogBuilder {
             .init()?;
 
         Ok(())
-    }
-
-    /// Start the logger with the constructed settings.
-    pub fn init(self) -> Result<()> {
-        self.init_(None)
-    }
-
-    /// Start the logger with the constructed settings and a selector.
-    pub fn init_with(self, selector: &str) -> Result<()> {
-        self.init_(Some(selector))
     }
 
     /// Set the timestamp format to be used. If None is given, the timestamp is
@@ -154,6 +143,15 @@ impl LogLogBuilder {
     /// By default, colours are enabled.
     pub fn colour(mut self, show: bool) -> Self {
         self.show_colour = show;
+        self
+    }
+
+    /// Specify the `env_logger` selector.
+    ///
+    /// By default, this will be pulled from the environment variable `RUST_LOG`
+    /// , and if that variable doesn't exist, `debug` will be used.
+    pub fn select(mut self, selector: &str) -> Self {
+        self.selector = Some(selector.to_string());
         self
     }
 
