@@ -1,6 +1,6 @@
 [package]
 name = "loglog"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Anthony Nguyen <anknguyen@gmail.com>"]
 description = "A very simple logger"
 homepage = "https://github.com/anthonynguyen/loglog"
