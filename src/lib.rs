@@ -36,6 +36,10 @@ pub fn init() -> Result<()> {
     build().init()
 }
 
+pub fn init_with(selector: &str) -> Result<()> {
+    build().init_with(selector)
+}
+
 pub fn build() -> LogLog {
     LogLog {
         time_format: "%T ".to_string(),
@@ -53,13 +57,15 @@ pub fn build() -> LogLog {
 }
 
 impl LogLog {
-    pub fn init(mut self) -> Result<()> {
+    fn init_(mut self, selector: Option<&str>) -> Result<()> {
         if !isatty::stderr_isatty() {
             self.show_colour = false;
         }
 
-        let rust_log = env::var("RUST_LOG")
-            .unwrap_or_else(|_| "info".to_string());
+        let rust_log: String = selector
+            .map(|s| s.to_string())
+            .or_else(|| env::var("RUST_LOG").ok())
+            .unwrap_or_else(|| "debug".to_string());
 
         env_logger::LogBuilder::new()
             .format(move |record| self.formatter(record))
@@ -67,6 +73,14 @@ impl LogLog {
             .init()?;
 
         Ok(())
+    }
+
+    pub fn init(self) -> Result<()> {
+        self.init_(None)
+    }
+
+    pub fn init_with(self, selector: &str) -> Result<()> {
+        self.init_(Some(selector))
     }
 
     pub fn time(mut self, time_format: Option<&str>) -> Self {
@@ -134,7 +148,7 @@ impl LogLog {
         }
     }
 
-    pub fn formatter(&self, record: &log::LogRecord) -> String {
+    fn formatter(&self, record: &log::LogRecord) -> String {
         format!(
             "{}{}{} {}",
             self.format_time(),
