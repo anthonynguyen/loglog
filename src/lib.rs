@@ -44,11 +44,11 @@ pub fn build() -> LogLog {
         show_target: false,
 
         show_colour: true,
-        colour_trace: Colour::Blue.paint(BARE_TRACE).to_string(),
-        colour_debug: Colour::Cyan.paint(BARE_DEBUG).to_string(),
-        colour_info: Colour::Green.paint(BARE_INFO).to_string(),
-        colour_warn: Colour::Yellow.paint(BARE_WARN).to_string(),
-        colour_error: Colour::Red.paint(BARE_ERROR).to_string()
+        colour_trace: Colour::Blue.bold().paint(BARE_TRACE).to_string(),
+        colour_debug: Colour::Cyan.bold().paint(BARE_DEBUG).to_string(),
+        colour_info: Colour::Green.bold().paint(BARE_INFO).to_string(),
+        colour_warn: Colour::Yellow.bold().paint(BARE_WARN).to_string(),
+        colour_error: Colour::Red.bold().paint(BARE_ERROR).to_string()
     }
 }
 
@@ -92,8 +92,13 @@ impl LogLog {
     }
 
     fn format_time(&self) -> String {
+        let ts = chrono::Local::now().format(&self.time_format).to_string();
+
         match self.show_time {
-            true => chrono::Local::now().format(&self.time_format).to_string(),
+            true => match self.show_colour {
+                true => Colour::Purple.bold().paint(ts).to_string(),
+                false => ts
+            },
             false => "".to_string()
         }
     }
@@ -118,12 +123,12 @@ impl LogLog {
     }
 
     fn format_target(&self, target: &str) -> String {
+        let ts = format!(" ({})", target);
+
         match self.show_target {
             true => match self.show_colour {
-                true => Colour::Purple
-                    .paint(format!(" ({})", target))
-                    .to_string(),
-                false => format!(" ({})", target)
+                true => Colour::Purple.bold().paint(ts).to_string(),
+                false => ts
             },
             false => "".to_string(),
         }
