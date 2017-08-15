@@ -2,6 +2,7 @@ extern crate ansi_term;
 extern crate chrono;
 extern crate env_logger;
 #[macro_use] extern crate error_chain;
+extern crate isatty;
 extern crate log;
 
 use ansi_term::Colour;
@@ -50,7 +51,11 @@ pub fn build() -> LogLog {
 }
 
 impl LogLog {
-    pub fn init(self) -> Result<()> {
+    pub fn init(mut self) -> Result<()> {
+        if !isatty::stderr_isatty() {
+            self.show_colour = false;
+        }
+
         env_logger::LogBuilder::new()
             .format(move |record| self.formatter(record))
             .filter(None, log::LogLevelFilter::Trace)
