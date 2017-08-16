@@ -78,7 +78,7 @@ pub fn build() -> LogLogBuilder {
         time_format: "%T ".to_string(),
         show_time: true,
 
-        show_target: false,
+        show_target: true,
 
         show_colour: true,
         colour_trace: Colour::Blue.bold().paint(BARE_TRACE).to_string(),
