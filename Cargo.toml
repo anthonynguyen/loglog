@@ -2,8 +2,9 @@
 name = "loglog"
 version = "0.2.0"
 authors = ["Anthony Nguyen <anknguyen@gmail.com>"]
-description = "A very simple logger"
+description = "A simple and usable logger"
 homepage = "https://github.com/anthonynguyen/loglog"
+documentation = "https://docs.rs/loglog/"
 repository = "https://github.com/anthonynguyen/loglog"
 readme = "README.md"
 keywords = ["log", "logger", "logging"]

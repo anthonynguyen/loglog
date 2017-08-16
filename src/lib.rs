@@ -10,6 +10,7 @@
 //!
 //! ```toml
 //! [dependencies]
+//! log = "0.3"
 //! loglog = "0.2"
 //! ```
 //!
