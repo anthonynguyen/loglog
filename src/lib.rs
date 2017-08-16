@@ -66,7 +66,9 @@ pub struct LogLogBuilder {
     colour_warn: String,
     colour_error: String,
 
-    selector: Option<String>
+    selector: Option<String>,
+
+    use_stdout: bool
 }
 
 /// Create the logger builder with some default values.
@@ -84,7 +86,9 @@ pub fn build() -> LogLogBuilder {
         colour_warn: Colour::Yellow.bold().paint(BARE_WARN).to_string(),
         colour_error: Colour::Red.bold().paint(BARE_ERROR).to_string(),
 
-        selector: None
+        selector: None,
+
+        use_stdout: false
     }
 }
 
@@ -96,9 +100,16 @@ pub fn init() -> Result<()> {
 impl LogLogBuilder {
     /// Start the logger with the constructed settings.
     pub fn init(mut self) -> Result<()> {
-        if !isatty::stderr_isatty() {
+        if self.use_stdout && !isatty::stdout_isatty() ||
+           !self.use_stdout && !isatty::stderr_isatty() {
             self.show_colour = false;
         }
+
+        let target = if self.use_stdout {
+            env_logger::LogTarget::Stdout
+        } else {
+            env_logger::LogTarget::Stderr
+        };
 
         let rust_log = self.selector.clone()
             .or_else(|| env::var("RUST_LOG").ok())
@@ -106,6 +117,7 @@ impl LogLogBuilder {
 
         env_logger::LogBuilder::new()
             .format(move |record| self.formatter(record))
+            .target(target)
             .parse(&rust_log)
             .init()?;
 
@@ -143,6 +155,14 @@ impl LogLogBuilder {
     /// By default, colours are enabled.
     pub fn colour(mut self, show: bool) -> Self {
         self.show_colour = show;
+        self
+    }
+
+    /// Enable or disable output to `stdout`.
+    ///
+    /// By default, logs are sent to `stderr`.
+    pub fn stdout(mut self, enable: bool) -> Self {
+        self.use_stdout = enable;
         self
     }
 
