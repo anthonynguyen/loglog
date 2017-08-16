@@ -114,7 +114,7 @@ impl LogLogBuilder {
 
         let rust_log = self.selector.clone()
             .or_else(|| env::var("RUST_LOG").ok())
-            .unwrap_or_else(|| "debug".to_string());
+            .unwrap_or_else(|| "info".to_string());
 
         env_logger::LogBuilder::new()
             .format(move |record| self.formatter(record))
