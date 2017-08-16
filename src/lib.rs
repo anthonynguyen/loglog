@@ -11,7 +11,7 @@
 //! ```toml
 //! [dependencies]
 //! log = "0.3"
-//! loglog = "0.2"
+//! loglog = "0.3"
 //! ```
 //!
 //! After initializing the logger, the `log` crate macros will be available.
