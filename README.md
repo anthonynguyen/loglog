@@ -9,7 +9,7 @@
 [cratesio-image]: https://img.shields.io/crates/v/loglog.svg
 [cratesio]: https://crates.io/crates/loglog
 [docsrs-image]: https://docs.rs/loglog/badge.svg
-[docsrs]: https://docs.rs/chrono/
+[docsrs]: https://docs.rs/loglog/
 
 A simple and usable logger.
 
