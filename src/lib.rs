@@ -36,16 +36,12 @@
 extern crate ansi_term;
 extern crate chrono;
 extern crate env_logger;
-#[macro_use] extern crate error_chain;
 extern crate isatty;
 extern crate log;
 
 use std::env;
 
 use ansi_term::Colour;
-
-mod errors;
-pub use errors::*;
 
 const BARE_TRACE: &'static str = "[TRACE]";
 const BARE_DEBUG: &'static str = "[DEBUG]";
@@ -93,14 +89,14 @@ pub fn build() -> LogLogBuilder {
     }
 }
 
-/// Quickly create the builder and start the logger.
-pub fn init() -> Result<()> {
+/// Quickly start the logger with the default settings.
+pub fn init() -> Result<(), log::SetLoggerError> {
     build().init()
 }
 
 impl LogLogBuilder {
     /// Start the logger with the constructed settings.
-    pub fn init(mut self) -> Result<()> {
+    pub fn init(mut self) -> Result<(), log::SetLoggerError> {
         if self.use_stdout && !isatty::stdout_isatty() ||
            !self.use_stdout && !isatty::stderr_isatty() {
             self.show_colour = false;
@@ -120,9 +116,7 @@ impl LogLogBuilder {
             .format(move |record| self.formatter(record))
             .target(target)
             .parse(&rust_log)
-            .init()?;
-
-        Ok(())
+            .init()
     }
 
     /// Set the timestamp format to be used. If None is given, the timestamp is
