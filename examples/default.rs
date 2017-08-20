@@ -2,12 +2,7 @@
 extern crate loglog;
 
 fn main() {
-    loglog::build()
-        .target(true)
-        .select("TRACE")
-        .time(Some("%H:%M:%S%.3f"))
-        .init()
-        .unwrap();
+    loglog::init().unwrap();
 
     trace!("TRACE MESSAGE");
     debug!("LOGS OF BUGS HERE");
